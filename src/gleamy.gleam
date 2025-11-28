@@ -1,10 +1,10 @@
+import gleam/dict
 import gleam/int
 import gleam/io
 import gleam/list
 import gleam/regexp
 import gleam/result
 import gleam/string
-import gleam/dict
 import simplifile
 
 pub fn main() -> Nil {
@@ -57,13 +57,20 @@ fn calculate_rpn(tokens: List(String)) -> Int {
 }
 
 fn calculate_rpn_loop(tokens: List(String), stack: List(Int)) -> Int {
-  let operator_mapping = dict.from_list([#("*", int.multiply), #("+", int.add), #("-", int.subtract), #("/", divide)])
+  let operator_mapping =
+    dict.from_list([
+      #("*", int.multiply),
+      #("+", int.add),
+      #("-", int.subtract),
+      #("/", divide),
+    ])
   case tokens {
     [] -> stack |> list.first() |> result.unwrap(0)
     [first_token, ..rest_of_tokens] ->
       case first_token {
         "+" | "-" | "*" | "/" -> {
-          let operator = dict.get(operator_mapping, first_token) |> result.unwrap(int.add)
+          let operator =
+            dict.get(operator_mapping, first_token) |> result.unwrap(int.add)
           handle_operator(stack, rest_of_tokens, operator)
         }
         _ -> {
@@ -77,23 +84,24 @@ fn calculate_rpn_loop(tokens: List(String), stack: List(Int)) -> Int {
   }
 }
 
-fn handle_operator(stack: List(Int), rest_of_tokens: List(String), operator: fn(Int, Int) -> Int) -> Int {
+fn handle_operator(
+  stack: List(Int),
+  rest_of_tokens: List(String),
+  operator: fn(Int, Int) -> Int,
+) -> Int {
   let #(a, b, remaining_stack) = get_terms(stack)
   let result = maths(b, a, operator)
-  calculate_rpn_loop(
-  rest_of_tokens,
-  list.append([result], remaining_stack)
-  )
+  calculate_rpn_loop(rest_of_tokens, list.append([result], remaining_stack))
 }
 
 fn get_terms(stack: List(Int)) -> #(Int, Int, List(Int)) {
   let a = list.first(stack) |> result.unwrap(0)
   let b = list.first(list.drop(stack, 1)) |> result.unwrap(0)
-  #(a, b, list.drop(stack,2))
+  #(a, b, list.drop(stack, 2))
 }
 
-fn divide(a: Int, b: Int ) -> Int {
-  case b{
+fn divide(a: Int, b: Int) -> Int {
+  case b {
     0 -> panic as "Division by zero is not allowed."
     _ -> a / b
   }
