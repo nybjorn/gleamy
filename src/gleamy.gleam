@@ -4,6 +4,7 @@ import gleam/list
 import gleam/regexp
 import gleam/result
 import gleam/string
+import gleam/dict
 import simplifile
 
 pub fn main() -> Nil {
@@ -24,7 +25,7 @@ pub fn main() -> Nil {
 
   let calculate_filepath = "./rpn.txt"
   let assert Ok(calculate_file) = simplifile.read(from: calculate_filepath)
-  let assignements =
+  let _assignements =
     calculate_file
     |> string.split("\n")
     |> list.map(fn(line) {
@@ -56,21 +57,14 @@ fn calculate_rpn(tokens: List(String)) -> Int {
 }
 
 fn calculate_rpn_loop(tokens: List(String), stack: List(Int)) -> Int {
+  let operator_mapping = dict.from_list([#("*", int.multiply), #("+", int.add), #("-", int.subtract), #("/", divide)])
   case tokens {
     [] -> stack |> list.first() |> result.unwrap(0)
     [first_token, ..rest_of_tokens] ->
       case first_token {
-        "+" -> {
-          handle_operator(stack, rest_of_tokens, int.add)
-        }
-        "-" -> {
-          handle_operator(stack, rest_of_tokens, int.subtract)
-        }
-        "*" -> {
-          handle_operator(stack, rest_of_tokens, int.multiply)
-        }
-        "/" -> {
-          handle_operator(stack, rest_of_tokens, divide)
+        "+" | "-" | "*" | "/" -> {
+          let operator = dict.get(operator_mapping, first_token) |> result.unwrap(int.add)
+          handle_operator(stack, rest_of_tokens, operator)
         }
         _ -> {
           let new_stack = case int.parse(first_token) {
