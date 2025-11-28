@@ -102,7 +102,7 @@ fn get_terms(stack: List(Int)) -> #(Int, Int, List(Int)) {
 
 fn divide(a: Int, b: Int) -> Int {
   case b {
-    0 -> panic as "Division by zero is not allowed."
+    0 -> panic as "Division by zero is not defined."
     _ -> a / b
   }
 }
